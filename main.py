@@ -424,6 +424,8 @@ class FortinetLoginApp(QWidget):
             )
             if result == QMessageBox.Ok:
                 save_credentials(username, password)
+                self.username = username
+                self.password = password
                 QMessageBox.information(
                     None,
                     "Information",
@@ -491,10 +493,10 @@ class ScriptThread(QThread):
 
             # Check if the OS is not Windows (assuming Unix-like OS supports os.setsid)
             if platform.system() != "Windows":
-                self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                self.process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NO_WINDOW, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                                 preexec_fn=os.setsid)
             else:
-                self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NO_WINDOW, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             for line in iter(self.process.stdout.readline, b''):
                 log_message = line.decode("utf-8").strip()
