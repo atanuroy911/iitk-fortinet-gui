@@ -1,11 +1,16 @@
 import os
 import sys
+import platform
 import sqlite3
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QDialog, qApp, QMessageBox, \
     QTabWidget, \
     QHBoxLayout, QLabel, QLineEdit
 from PyQt5.QtCore import Qt
-import winreg as reg
+
+if platform.system() == 'Windows':
+    import winreg as reg
+else:
+    print('Not Windows. Skipping...')
 
 
 class SettingsWindow(QDialog):
@@ -165,20 +170,23 @@ class SettingsWindow(QDialog):
             conn.commit()
             conn.close()
 
-            key = r"Software\Microsoft\Windows\CurrentVersion\Run"
-            app_path = os.path.abspath(sys.argv[0])
+            if platform.system() == 'Windows':
+                key = r"Software\Microsoft\Windows\CurrentVersion\Run"
+                app_path = os.path.abspath(sys.argv[0])
 
-            if start_at_startup:
-                # Add the application to startup
-                with reg.OpenKey(reg.HKEY_CURRENT_USER, key, 0, reg.KEY_WRITE) as registry_key:
-                    reg.SetValueEx(registry_key, "YourAppName", 0, reg.REG_SZ, app_path)
-            else:
-                # Remove the application from startup
-                try:
+                if start_at_startup:
+                    # Add the application to startup
                     with reg.OpenKey(reg.HKEY_CURRENT_USER, key, 0, reg.KEY_WRITE) as registry_key:
-                        reg.DeleteValue(registry_key, "YourAppName")
-                except FileNotFoundError:
-                    pass
+                        reg.SetValueEx(registry_key, "YourAppName", 0, reg.REG_SZ, app_path)
+                else:
+                    # Remove the application from startup
+                    try:
+                        with reg.OpenKey(reg.HKEY_CURRENT_USER, key, 0, reg.KEY_WRITE) as registry_key:
+                            reg.DeleteValue(registry_key, "YourAppName")
+                    except FileNotFoundError:
+                        pass
+            else:
+                print('Not Windows')
 
             QMessageBox.information(self, "Settings Saved", "Settings have been saved.", QMessageBox.Ok)
 

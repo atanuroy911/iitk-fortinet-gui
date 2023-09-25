@@ -28,11 +28,12 @@ try:
     from plyer import notification
 except ImportError:
     notification = None
+if platform.system() == "Windows":
+    import ctypes
 
-import ctypes
+    myappid = u'iitk.fortinet.iotlab.atanuroy911'  # arbitrary string
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
-myappid = u'iitk.fortinet.iotlab.atanuroy911'  # arbitrary string
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 main_window = None
 
 basedir = os.path.dirname(__file__)
