@@ -23,11 +23,8 @@ from about_window import AboutWindow
 from db import initialize_database, get_saved_credentials, check_credentials_exist, \
     save_credentials
 from settings_window import SettingsWindow
+from utils.notification_manager import NotificationManager
 
-try:
-    from plyer import notification
-except ImportError:
-    notification = None
 if platform.system() == "Windows":
     import ctypes
 
@@ -41,6 +38,8 @@ basedir = os.path.dirname(__file__)
 log_out_url = 'https://gateway.iitk.ac.in:1003/logout?a'
 
 app_name = "IITK Fortinet Login App"
+# Provide the path to the icon you want to use
+icon_path = os.path.join(basedir, "img/icon.ico")  # Replace with your icon path
 
 
 class FortinetLoginApp(QWidget):
@@ -81,7 +80,8 @@ class FortinetLoginApp(QWidget):
 
         # Load and display the second logo on the right
         logo2 = QLabel()
-        pixmap2 = QPixmap(os.path.join(basedir, "img/Fortinet_logo.png"))  # Replace with the actual path to your second logo
+        pixmap2 = QPixmap(
+            os.path.join(basedir, "img/Fortinet_logo.png"))  # Replace with the actual path to your second logo
 
         # Resize the second logo (e.g., to a width of 100 pixels)
         pixmap2 = pixmap2.scaledToWidth(150, Qt.SmoothTransformation)
@@ -199,8 +199,10 @@ class FortinetLoginApp(QWidget):
 
         # Create a QPushButton for the settings icon
         settings_button = QPushButton()
-        settings_pixmap = QPixmap(os.path.join(basedir, "img/settings_icon.png"))  # Replace with the actual path to your settings icon
+        settings_pixmap = QPixmap(
+            os.path.join(basedir, "img/settings_icon.png"))  # Replace with the actual path to your settings icon
         settings_button.setIcon(QIcon(settings_pixmap))
+        settings_button.setToolTip('Settings')
         settings_button.setIconSize(settings_pixmap.rect().size())
 
         # Apply styles for different button states
@@ -219,8 +221,10 @@ class FortinetLoginApp(QWidget):
 
         # Create a QPushButton for the info icon
         info_button = QPushButton()
-        info_pixmap = QPixmap(os.path.join(basedir,"img/info_icon.png"))  # Replace with the actual path to your info icon
+        info_pixmap = QPixmap(
+            os.path.join(basedir, "img/info_icon.png"))  # Replace with the actual path to your info icon
         info_button.setIcon(QIcon(info_pixmap))
+        info_button.setToolTip('Info')
         info_button.setIconSize(info_pixmap.rect().size())
 
         # Apply styles for different button states
@@ -242,6 +246,7 @@ class FortinetLoginApp(QWidget):
         quit_pixmap = QPixmap(
             os.path.join(basedir, "img/quit_icon.png"))  # Replace with the actual path to your info icon
         quit_button.setIcon(QIcon(quit_pixmap))
+        quit_button.setToolTip('Exit App')
         quit_button.setIconSize(quit_pixmap.rect().size())
 
         # Apply styles for different button states
@@ -262,7 +267,6 @@ class FortinetLoginApp(QWidget):
         icon_layout.addWidget(info_button)
         icon_layout.addWidget(quit_button)
 
-
         layout.addLayout(icon_layout)
 
         self.run_button.clicked.connect(self.start_script)
@@ -280,7 +284,6 @@ class FortinetLoginApp(QWidget):
         quit_button.clicked.connect(self.exit_application)
         self.setLayout(layout)
 
-
         self.running = False
         self.stop_button.setEnabled(False)  # Disable the "Stop Service" button initially
 
@@ -290,17 +293,25 @@ class FortinetLoginApp(QWidget):
         # Create a QSystemTrayIcon and set its icon
         self.tray_icon = QSystemTrayIcon(self)
         self.tray_icon.setIcon(QIcon(os.path.join(basedir, "img/icon.png")))  # Replace with your tray icon path
-
+        self.tray_icon.setToolTip("IITK Fortinet Login App")
         # Create a context menu for the system tray icon
         self.tray_menu = QMenu()
         show_action = self.tray_menu.addAction("Show Application")
+        self.start_action = self.tray_menu.addAction("Start Service")
+        self.stop_action = self.tray_menu.addAction("Stop Service")
+        self.stop_action.setEnabled(False)
         exit_action = self.tray_menu.addAction("Exit")
 
         self.tray_icon.setContextMenu(self.tray_menu)
 
         # Connect actions to functions
         show_action.triggered.connect(self.show_application)
+        self.start_action.triggered.connect(self.start_script)
+        self.stop_action.triggered.connect(self.stop_script)
         exit_action.triggered.connect(self.exit_application)
+
+        # Handle double-click event
+        self.tray_icon.activated.connect(self.trayIconActivated)
 
         # Show the system tray icon
         self.tray_icon.show()
@@ -308,7 +319,8 @@ class FortinetLoginApp(QWidget):
         # Set the fixed size of the window
         self.setFixedSize(400, 350)  # Replace with your desired window size
 
-        self.script_thread = ScriptThread(os.path.join(basedir, 'utils/authenticator.py'), username=self.username_input.text(), password=self.password_input.text())
+        self.script_thread = ScriptThread(os.path.join(basedir, 'utils/authenticator.py'),
+                                          username=self.username_input.text(), password=self.password_input.text())
         self.script_thread.log_signal.connect(self.append_log)
 
         self.username_input.textChanged.connect(self.redeclare_script_thread)
@@ -318,9 +330,15 @@ class FortinetLoginApp(QWidget):
         self.script_thread = ScriptThread(os.path.join(basedir, 'utils/authenticator.py'),
                                           username=self.username_input.text(), password=self.password_input.text())
         self.script_thread.log_signal.connect(self.append_log)
+
     def show_application(self):
         self.show()
-        self.tray_icon.setVisible(False)  # Hide the system tray icon when the app is shown
+        # self.tray_icon.setVisible(False)  # Hide the system tray icon when the app is shown
+
+    def trayIconActivated(self, reason):
+        if reason == QSystemTrayIcon.DoubleClick:
+            self.show()
+            # self.tray_icon.setVisible(False)  # Hide the system tray icon when the app is shown
 
     def exit_application(self):
         self.stop_script()  # Stop the script if running
@@ -329,19 +347,14 @@ class FortinetLoginApp(QWidget):
     def closeEvent(self, event):
         event.ignore()
         self.hide()
+        self.tray_icon.setVisible(True)
         self.show_notification()  # Show a system notification when minimized
 
     def show_notification(self):
-        if notification:
-            notification_title = app_name
-            notification_message = f"{app_name} is now in the system tray."
-            notification.notify(
-                title=notification_title,
-                message=notification_message,
-                app_name=app_name,
-                app_icon=os.path.join(basedir, "img/icon.ico"),  # Replace with your tray icon path
-                timeout=5  # Notification timeout in seconds
-            )
+        # Create an instance of NotificationManager
+        manager = NotificationManager(app_name)
+        # Call the show_notification method
+        manager.show_notification("Running in Background. Check System Tray", icon_path)
 
     def start_script(self):
         # Disable the "Start Service" button when it's clicked
@@ -353,13 +366,17 @@ class FortinetLoginApp(QWidget):
                 buttons=QMessageBox.Ok,
                 defaultButton=QMessageBox.Ok,
             )
+            self.show()
         else:
+            if not self.username or not self.password:
+                self.save_info()
             self.run_button.setEnabled(False)
+            self.start_action.setEnabled(False)
             self.log_text.clear()
             self.script_thread.start()
             # Enable the "Stop Service" button
             self.stop_button.setEnabled(True)
-
+            self.stop_action.setEnabled(True)
 
             self.running = True
 
@@ -369,11 +386,11 @@ class FortinetLoginApp(QWidget):
             self.script_thread.stop()
             # Enable the "Start Service" button when the service is stopped
             self.run_button.setEnabled(True)
+            self.start_action.setEnabled(True)
 
             # Disable the "Stop Service" button
             self.stop_button.setEnabled(False)
-
-
+            self.stop_action.setEnabled(False)
 
             self.running = False
 
@@ -440,7 +457,7 @@ class FortinetLoginApp(QWidget):
 
 def show_splash_screen(app):
     app.processEvents()  # Allow the splash screen to update
-    splash_pix = QPixmap(os.path.join(basedir,"img/Splash.png"))  # Replace with the path to your splash image
+    splash_pix = QPixmap(os.path.join(basedir, "img/Splash.png"))  # Replace with the path to your splash image
     splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
     splash.show()
     app.processEvents()
@@ -450,7 +467,7 @@ def show_splash_screen(app):
     for i in range(1, 10000):
         splash.showMessage(f"Loading... ", Qt.AlignBottom | Qt.AlignRight, Qt.white)
         app.processEvents()
-        QTimer.singleShot(2000, lambda: None)  # Simulate a 2-second delay
+        # QTimer.singleShot(2000, lambda: None)  # Simulate a 2-second delay
 
     # Close the splash screen and show the main window
     splash.finish(main_window)
@@ -491,6 +508,8 @@ class ScriptThread(QThread):
             self.process.wait()
         except Exception as e:
             self.log_signal.emit(f"Error: {str(e)}", False)
+            error_notification(str(e))
+
         finally:
             self.log_signal.emit("Script finished.", False)
 
@@ -515,6 +534,27 @@ class ScriptThread(QThread):
 
         except Exception as e:
             self.log_signal.emit(f"Error while Quitting: {str(e)}", False)
+            error_notification(str(e))
+
+
+def error_notification(msg):
+    print(msg)
+    if 'Invalid user' in msg:
+        QMessageBox.critical(
+            None,
+            "Invalid Username/Password",
+            "Please Check Your Username & Password",
+            buttons=QMessageBox.Ok,
+            defaultButton=QMessageBox.Ok,
+        )
+    else:
+        QMessageBox.critical(
+            None,
+            "ERROR",
+            f"Check Log",
+            buttons=QMessageBox.Ok,
+            defaultButton=QMessageBox.Ok,
+        )
 
 
 def main():

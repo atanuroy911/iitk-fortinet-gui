@@ -24,7 +24,7 @@ class SettingsWindow(QDialog):
         self.load_settings()
 
     def init_ui(self):
-        self.setWindowTitle("Settings")
+        self.setWindowTitle("Settings (Under Construction)")
 
         # Calculate the window's position to center it on the screen
         window_width = 400
@@ -63,14 +63,16 @@ class SettingsWindow(QDialog):
         # Center align the widgets in the layout
         update_layout.setAlignment(Qt.AlignHCenter)
 
-        update_url_label = QLabel("Update URL:")
+        update_url_label = QLabel("Update URL [Under Construction]:")
         self.update_url_edit = QLineEdit()
+        self.update_url_edit.setText('https://github.com/atanuroy911/iitk-fortinet-gui/releases')
         update_layout.addWidget(update_url_label)
         update_layout.addWidget(self.update_url_edit)
 
         # Create a horizontal layout for the Check for Update button
         button_layout = QHBoxLayout()
         button_layout.setAlignment(Qt.AlignHCenter)
+
 
         check_update_button = QPushButton("Check for Update")
         check_update_button.clicked.connect(self.check_update)
@@ -194,7 +196,10 @@ class SettingsWindow(QDialog):
             QMessageBox.warning(self, "SQLite Error", f"SQLite error: {str(e)}", QMessageBox.Ok)
 
     def check_update(self):
-        QMessageBox.information(self, "Update", "No Updates Available", QMessageBox.Ok)
+        QMessageBox.information(self, "Update", "Under Construction", QMessageBox.Ok)
+        # Open a website when OK button is clicked
+        import webbrowser
+        webbrowser.open('https://github.com/atanuroy911/iitk-fortinet-gui/releases')
         # Add code to check for software updates using the update URL
         # You can use self.update_url_edit.text() to get the URL entered by the user
         # Display the update status to the user using QMessageBox or another widget
