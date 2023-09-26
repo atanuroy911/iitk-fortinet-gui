@@ -2,14 +2,9 @@ import sqlite3
 import os
 import platform
 
+
 basedir = os.path.expanduser('~/.iitkfauth')
-
-if platform.system() == 'Windows':
-    basedir = '.'
-
-if platform.system() == 'Linux':
-    basedir = os.path.expanduser('~/.iitkfauth')
-    os.makedirs(basedir, exist_ok=True)
+os.makedirs(basedir, exist_ok=True)
 credential_dir = os.path.join(basedir, 'credentials.db')
 
 # Function to create or connect to the credentials database

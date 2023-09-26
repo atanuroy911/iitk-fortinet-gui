@@ -7,13 +7,12 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPush
     QHBoxLayout, QLabel, QLineEdit
 from PyQt5.QtCore import Qt
 
+
 if platform.system() == 'Windows':
     import winreg as reg
-    basedir = '.'
 
-if platform.system() == 'Linux' or 'Darwin':
-    basedir = os.path.expanduser('~/.iitkfauth')
-    os.makedirs(basedir, exist_ok=True)
+basedir = os.path.expanduser('~/.iitkfauth')
+os.makedirs(basedir, exist_ok=True)
 settings_dir = os.path.join(basedir, 'settings.db')
 
 class SettingsWindow(QDialog):
