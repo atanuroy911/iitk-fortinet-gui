@@ -9,3 +9,4 @@ Output
 package
 *.deb
 *.exe
+dist

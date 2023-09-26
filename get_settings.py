@@ -1,11 +1,10 @@
 import os
 import sqlite3
 
-from PyQt5.QtWidgets import QMessageBox
-
 basedir = os.path.expanduser('~/.iitkfauth')
 os.makedirs(basedir, exist_ok=True)
 settings_dir = os.path.join(basedir, 'settings.db')
+
 
 def get_settings():
     try:
@@ -34,4 +33,4 @@ def get_settings():
         conn.close()
 
     except sqlite3.Error as e:
-        QMessageBox.warning(self, "SQLite Error", f"SQLite error: {str(e)}", QMessageBox.Ok)
+        print("SQLite Error", f"SQLite error: {str(e)}")

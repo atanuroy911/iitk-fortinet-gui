@@ -1,0 +1,11 @@
+[Unit]
+Description=IITK Fortinet Authenticator
+
+[Service]
+ExecStart=/opt/IITKFAuth/IITKFAuth
+Restart=always
+RestartSec=3
+User=
+
+[Install]
+WantedBy=multi-user.target

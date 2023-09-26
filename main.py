@@ -11,6 +11,7 @@ import signal
 import platform  # Import the platform module to check the OS
 import psutil
 
+
 # import fcntl
 
 
@@ -472,12 +473,13 @@ class FortinetLoginApp(QWidget):
     def start_minimized(self):
         try:
             parameter = get_settings()[1]
-            if parameter == '1' or 1:
+            if parameter == '1' or int(parameter):
                 return True
             else:
                 return False
-        except FileNotFoundError:
+        except Exception as e:
             # Handle the case where the registry key does not exist
+            print(f'Error: {e}')
             return False
 
     def closeEvent(self, event):
@@ -514,6 +516,11 @@ class FortinetLoginApp(QWidget):
             self.stop_button.setEnabled(True)
             self.stop_action.setEnabled(True)
 
+            # Create an instance of NotificationManager
+            manager = NotificationManager(app_name)
+            # Call the show_notification method
+            manager.show_notification("Service Started", icon_path)
+
             self.running = True
 
     # TODO: Unexpected Quit Handle - DONE
@@ -527,6 +534,11 @@ class FortinetLoginApp(QWidget):
             # Disable the "Stop Service" button
             self.stop_button.setEnabled(False)
             self.stop_action.setEnabled(False)
+
+            # Create an instance of NotificationManager
+            manager = NotificationManager(app_name)
+            # Call the show_notification method
+            manager.show_notification("Service Stopped", icon_path)
 
             self.running = False
 

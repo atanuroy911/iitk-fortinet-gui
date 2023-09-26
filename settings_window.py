@@ -2,10 +2,12 @@ import os
 import sys
 import platform
 import sqlite3
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QDialog, qApp, QMessageBox, \
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QCheckBox, QPushButton, QDialog, qApp, QMessageBox, \
     QTabWidget, \
     QHBoxLayout, QLabel, QLineEdit
 from PyQt5.QtCore import Qt
+
+# from utils.mac_agent import install_agent
 
 if platform.system() == 'Windows':
     import winreg as reg
@@ -26,7 +28,7 @@ class SettingsWindow(QDialog):
         self.load_settings()
 
     def init_ui(self):
-        self.setWindowTitle("Settings (Under Construction)")
+        self.setWindowTitle("Settings (Beta)")
 
         # Calculate the window's position to center it on the screen
         window_width = 400
@@ -53,7 +55,7 @@ class SettingsWindow(QDialog):
 
         # Create widgets for the Startup Options tab
         startup_layout = QVBoxLayout()
-        self.startup_checkbox = QCheckBox("Start automatically at startup")
+        self.startup_checkbox = QCheckBox("Start automatically at startup (Windows Only)")
         self.minimized_checkbox = QCheckBox("Start minimized")
         startup_layout.addWidget(self.startup_checkbox)
         startup_layout.addWidget(self.minimized_checkbox)
@@ -83,6 +85,7 @@ class SettingsWindow(QDialog):
                     color: white; /* White text color */
                     padding: 10px 20px; /* Padding (top/bottom, left/right) */
                     border: none; /* No border */
+                    border-radius: 4px;
                     min-width: 100px; /* Set minimum width */
                 }
                 QPushButton:hover {
@@ -105,6 +108,7 @@ class SettingsWindow(QDialog):
                     background-color: #065f46; /* Green background color */
                     color: white; /* White text color */
                     padding: 10px 20px; /* Padding (top/bottom, left/right) */
+                    border-radius: 4px;
                     border: none; /* No border */
                 }
                 QPushButton:hover {
@@ -218,6 +222,14 @@ class SettingsWindow(QDialog):
                             reg.SetValueEx(registry_key, "StartMinimized", 0, reg.REG_SZ, '0')
                     except FileNotFoundError:
                         pass
+            # TODO: WORK IN PROGRESS
+            # else:
+            #     if start_at_startup:
+            #         if platform.system() == 'Darwin':
+            #             install_agent(True)
+            #     else:
+            #         if platform.system() == 'Darwin':
+            #             install_agent(False)
 
             QMessageBox.information(self, "Settings Saved", "Settings have been saved.", QMessageBox.Ok)
 
