@@ -14,7 +14,7 @@ import requests
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QPushButton, QTextEdit, QLineEdit, QLabel, QMessageBox, QHBoxLayout,
-    QSpacerItem, QSizePolicy, QSplashScreen, QSystemTrayIcon, QMenu
+    QSpacerItem, QSizePolicy, QSplashScreen, QSystemTrayIcon, QMenu, QDesktopWidget, QLayout
 )
 from PyQt5.QtCore import QTimer, Qt
 
@@ -58,7 +58,9 @@ class FortinetLoginApp(QWidget):
         global log_text, app_name
 
         layout = QVBoxLayout()
-
+        # Determine the screen size
+        screen = QDesktopWidget().screenGeometry()
+        screen_width, screen_height = screen.width(), screen.height()
         # Create a QHBoxLayout for the logos
         logo_layout = QHBoxLayout()
         # Add an empty spacer to push the first logo to the right
@@ -96,21 +98,27 @@ class FortinetLoginApp(QWidget):
 
         # Create a container for the username and password section
         input_container = QVBoxLayout()
+        input_container.setSizeConstraint(QLayout.SetFixedSize)  # This sets the size to be fixed
 
         username_label = QLabel("Username:")
+        username_label.setFixedHeight(20)
         self.username_input = QLineEdit()
-
+        self.username_input.setFixedHeight(20)
         # Style the username input field
         self.username_input.setStyleSheet("""
                     QLineEdit {
                         padding: 8px;
                         border: 1px solid #ccc;
                         border-radius: 4px;
+                        min-height: 20px; /* Set the desired fixed width */
+                        max-height: 20px; /* Set the desired fixed width */
                     }
                 """)
 
         password_label = QLabel("Password:")
         self.password_input = QLineEdit()
+        password_label.setFixedHeight(20)
+        self.password_input.setFixedHeight(20)
 
         # Style the password input field
         self.password_input.setEchoMode(QLineEdit.Password)
@@ -119,6 +127,8 @@ class FortinetLoginApp(QWidget):
                         padding: 8px;
                         border: 1px solid #ccc;
                         border-radius: 4px;
+                        min-height: 20px; /* Set the desired fixed width */
+                        max-height: 20px; /* Set the desired fixed width */
                     }
                 """)
 
@@ -126,6 +136,7 @@ class FortinetLoginApp(QWidget):
         input_container.addWidget(self.username_input)
         input_container.addWidget(password_label)
         input_container.addWidget(self.password_input)
+
 
         layout.addLayout(input_container)
 
@@ -137,7 +148,7 @@ class FortinetLoginApp(QWidget):
             self.save_info_button.setText("Update Info")
 
         # Create a "Show Log" button
-        self.show_log_button = QPushButton("Show Log")
+        self.clear_log_button = QPushButton("Clear Log")
 
         # Style the buttons
         button_style = """
@@ -159,7 +170,7 @@ class FortinetLoginApp(QWidget):
                     QPushButton:disabled { color: gray; background-color: lightgray;}
                 """
 
-        show_log_button_style = """
+        clear_log_button_style = """
                             QPushButton {
                                 padding: 8px 16px;
                                 background-color: #4C4F50; /* Green background */
@@ -181,17 +192,20 @@ class FortinetLoginApp(QWidget):
         self.run_button.setStyleSheet(button_style)
         self.stop_button.setStyleSheet(button_style)
         self.save_info_button.setStyleSheet(button_style)
-        self.show_log_button.setStyleSheet(show_log_button_style)
+        self.clear_log_button.setStyleSheet(clear_log_button_style)
 
         self.log_text = QTextEdit()
+        self.log_text.setFixedHeight(int(screen_height*0.1))
         self.log_text.setReadOnly(True)
-        self.log_text.setVisible(False)  # Initially hide the log section
+        self.log_text.setVisible(True)  # Initially hide the log section
+
+
 
         layout.addWidget(self.run_button)
         layout.addWidget(self.stop_button)
         layout.addWidget(self.save_info_button)
         layout.addWidget(self.log_text)
-        layout.addWidget(self.show_log_button)
+        layout.addWidget(self.clear_log_button)
 
         # Create a QHBoxLayout for the icons
         icon_layout = QHBoxLayout()
@@ -273,7 +287,7 @@ class FortinetLoginApp(QWidget):
         self.stop_button.clicked.connect(self.stop_script)
         self.save_info_button.clicked.connect(self.save_info)
 
-        self.show_log_button.clicked.connect(self.toggle_log_visibility)
+        self.clear_log_button.clicked.connect(self.clear_log)
 
         self.settings_window = SettingsWindow()  # Create the settings window
         settings_button.clicked.connect(self.show_settings)
@@ -316,8 +330,19 @@ class FortinetLoginApp(QWidget):
         # Show the system tray icon
         self.tray_icon.show()
 
-        # Set the fixed size of the window
-        self.setFixedSize(400, 350)  # Replace with your desired window size
+        # Calculate the window size as a percentage of the screen size (e.g., 80% width and 60% height)
+        window_width = int(screen_width * 0.2)
+        window_height = int(screen_height * 0.5)
+
+        # Set the window size
+        self.setFixedSize(window_width, window_height)
+
+        # Calculate the window position to center it on the screen
+        x_position = (screen_width - window_width) // 2
+        y_position = (screen_height - window_height) // 2
+
+        # Set the window position
+        self.move(x_position, y_position)
 
         self.script_thread = ScriptThread(os.path.join(basedir, 'utils/authenticator.py'),
                                           username=self.username_input.text(), password=self.password_input.text())
@@ -400,15 +425,38 @@ class FortinetLoginApp(QWidget):
             self.stop_button.setEnabled(False)
             self.run_button.setEnabled(True)
 
-    def toggle_log_visibility(self):
-        # Toggle the visibility of the log section
-        if self.log_text.isVisible():
-            self.setFixedSize(400, 350)  # Replace with your desired window size
-            self.show_log_button.setText('Show Log')
-        else:
-            self.setFixedSize(400, 500)
-            self.show_log_button.setText('Hide Log')
-        self.log_text.setVisible(not self.log_text.isVisible())
+    def clear_log(self):
+        self.log_text.clear()
+
+    # def toggle_log_visibility(self):
+    #     # Toggle the visibility of the log section
+    #     if self.log_text.isVisible():
+    #         # Determine the screen size
+    #         screen = QDesktopWidget().screenGeometry()
+    #         screen_width, screen_height = screen.width(), screen.height()
+    #
+    #         # Calculate the window size as a percentage of the screen size (e.g., 80% width and 60% height)
+    #         window_width = int(screen_width * 0.2)
+    #         window_height = int(screen_height * 0.3)
+    #
+    #         # Set the window size
+    #         self.setFixedSize(window_width, window_height)
+    #
+    #         self.show_log_button.setText('Show Log')
+    #     else:
+    #         # Determine the screen size
+    #         screen = QDesktopWidget().screenGeometry()
+    #         screen_width, screen_height = screen.width(), screen.height()
+    #
+    #         # Calculate the window size as a percentage of the screen size (e.g., 80% width and 60% height)
+    #         window_width = int(screen_width * 0.2)
+    #         window_height = int(screen_height * 0.5)
+    #
+    #         # Set the window size
+    #         self.setFixedSize(window_width, window_height)
+    #
+    #         self.show_log_button.setText('Hide Log')
+    #     self.log_text.setVisible(not self.log_text.isVisible())
 
     def save_info(self):
         # You can implement the logic to save the entered username and password here
