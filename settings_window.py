@@ -7,13 +7,13 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPush
     QHBoxLayout, QLabel, QLineEdit
 from PyQt5.QtCore import Qt
 
-
 if platform.system() == 'Windows':
     import winreg as reg
 
 basedir = os.path.expanduser('~/.iitkfauth')
 os.makedirs(basedir, exist_ok=True)
 settings_dir = os.path.join(basedir, 'settings.db')
+
 
 class SettingsWindow(QDialog):
     def __init__(self, parent=None):
@@ -74,7 +74,6 @@ class SettingsWindow(QDialog):
         # Create a horizontal layout for the Check for Update button
         button_layout = QHBoxLayout()
         button_layout.setAlignment(Qt.AlignHCenter)
-
 
         check_update_button = QPushButton("Check for Update")
         check_update_button.clicked.connect(self.check_update)
@@ -177,16 +176,46 @@ class SettingsWindow(QDialog):
             if platform.system() == 'Windows':
                 key = r"Software\Microsoft\Windows\CurrentVersion\Run"
                 app_path = os.path.abspath(sys.argv[0])
+                # Define the path to the key you want to create
+                key_path = r"Software\IITKFAuth"
+
+                try:
+                    # Open the parent key (Software) in write mode
+                    parent_key = reg.OpenKey(reg.HKEY_CURRENT_USER, "Software", 0, reg.KEY_WRITE)
+
+                    # Check if the "IITKFAuth" key already exists
+                    try:
+                        reg.OpenKey(parent_key, "IITKFAuth")
+                    except FileNotFoundError:
+                        # The key does not exist, so create it
+                        reg.CreateKey(parent_key, "IITKFAuth")
+                        print(f"Registry key '{key_path}' created successfully.")
+
+                    # Close the parent key
+                    reg.CloseKey(parent_key)
+                except Exception as e:
+                    print(f"Error creating or checking registry key: {e}")
 
                 if start_at_startup:
                     # Add the application to startup
                     with reg.OpenKey(reg.HKEY_CURRENT_USER, key, 0, reg.KEY_WRITE) as registry_key:
-                        reg.SetValueEx(registry_key, "YourAppName", 0, reg.REG_SZ, app_path)
+                        reg.SetValueEx(registry_key, "IITKFAuth", 0, reg.REG_SZ, app_path)
                 else:
                     # Remove the application from startup
                     try:
                         with reg.OpenKey(reg.HKEY_CURRENT_USER, key, 0, reg.KEY_WRITE) as registry_key:
-                            reg.DeleteValue(registry_key, "YourAppName")
+                            reg.DeleteValue(registry_key, "IITKFAuth")
+                    except FileNotFoundError:
+                        pass
+
+                if start_minimized:
+                    with reg.OpenKey(reg.HKEY_CURRENT_USER, key_path, 0, reg.KEY_WRITE) as registry_key:
+                        reg.SetValueEx(registry_key, "StartMinimized", 0, reg.REG_SZ, '1')
+                else:
+                    # Remove the application from startup
+                    try:
+                        with reg.OpenKey(reg.HKEY_CURRENT_USER, key_path, 0, reg.KEY_WRITE) as registry_key:
+                            reg.SetValueEx(registry_key, "StartMinimized", 0, reg.REG_SZ, '0')
                     except FileNotFoundError:
                         pass
 

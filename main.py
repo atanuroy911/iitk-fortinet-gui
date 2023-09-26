@@ -27,11 +27,13 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from about_window import AboutWindow
 from db import initialize_database, get_saved_credentials, check_credentials_exist, \
     save_credentials
+from get_settings import get_settings
 from settings_window import SettingsWindow
 from utils.notification_manager import NotificationManager
 
 if platform.system() == "Windows":
     import ctypes
+    import winreg as reg
 
     # from win32 import win32gui
 
@@ -451,6 +453,33 @@ class FortinetLoginApp(QWidget):
         self.stop_script()  # Stop the script if running
         self.app.quit()
 
+    def start_minimized_win(self):
+        try:
+            # Open the registry key to check the startup parameters
+            key_path = r"Software\IITKFAuth"
+            with reg.OpenKey(reg.HKEY_CURRENT_USER, key_path, 0, reg.KEY_READ) as registry_key:
+                # Read the "IITKFAuth" registry value, which should contain startup parameters
+                startup_params = reg.QueryValueEx(registry_key, "StartMinimized")[0]
+                if startup_params == '1':
+                    # If "-minimized" is in the startup parameters, start the application minimized
+                    return True
+                else:
+                    return False
+        except FileNotFoundError:
+            # Handle the case where the registry key does not exist
+            return False
+
+    def start_minimized(self):
+        try:
+            parameter = get_settings()[1]
+            if parameter == '1' or 1:
+                return True
+            else:
+                return False
+        except FileNotFoundError:
+            # Handle the case where the registry key does not exist
+            return False
+
     def closeEvent(self, event):
         event.ignore()
         self.hide()
@@ -681,6 +710,7 @@ class ScriptThread(QThread):
             self.log_signal.emit(f"Error while Quitting: {str(e)}", False)
             error_notification(str(e))
 
+
 # QPROCESS IMPLEMENTATION
 
 # class ScriptThread(QThread):
@@ -878,7 +908,19 @@ def main():
     main_window = FortinetLoginApp(app, username, password)
     main_window.setWindowTitle("IITK Fortinet Captive Portal Login")
 
-    main_window.show()
+    if platform.system() == 'Windows':
+        if main_window.start_minimized_win():
+            main_window.tray_icon.setVisible(True)
+            main_window.show_notification()  # Show a system notification when minimized
+        else:
+            main_window.show()
+
+    else:
+        if main_window.start_minimized():
+            main_window.tray_icon.setVisible(True)
+            main_window.show_notification()  # Show a system notification when minimized
+        else:
+            main_window.show()
 
     sys.exit(app.exec_())
 
