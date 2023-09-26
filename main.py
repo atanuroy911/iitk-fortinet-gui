@@ -590,11 +590,11 @@ class ScriptThread(QThread):
         self.password = password
         self.stopped = False
         if platform.system() == 'Windows':
-            self.cmd = 'utils/authenticator.exe'
+            self.cmd = os.path.join(basedir,'utils/authenticator.exe')
         elif platform.system() == 'Linux':
-            self.cmd = 'utils/authenticator-linux'
+            self.cmd = os.path.join(basedir,'utils/authenticator-linux')
         elif platform.system() == 'Darwin':
-            self.cmd = 'utils/authenticator-darwin'
+            self.cmd = os.path.join(basedir,'utils/authenticator-darwin')
         else:
             self.cmd = 'python3 authenticator.py'
 
