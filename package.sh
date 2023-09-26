@@ -12,6 +12,7 @@ cp IITKFAuth.desktop package/usr/share/applications
 
 # Change permissions
 find package/opt/IITKFAuth -type f -exec chmod 644 -- {} +
+find package/opt/IITKFAuth/_internal/utils/authenticator-linux -type f -exec chmod 755 -- {} +
 find package/opt/IITKFAuth -type d -exec chmod 755 -- {} +
 find package/usr/share -type f -exec chmod 644 -- {} +
 chmod +x package/opt/IITKFAuth/IITKFAuth
