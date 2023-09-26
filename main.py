@@ -39,10 +39,11 @@ log_out_url = 'https://gateway.iitk.ac.in:1003/logout?a'
 
 app_name = "IITK Fortinet Login App"
 # Provide the path to the icon you want to use
-    
+
 icon_path = os.path.join(basedir, "img/icon.ico")  # Replace with your icon path
 if platform.system() == "Linux":
     icon_path = os.path.join(basedir, "img/icon.png")  # Replace with your icon path
+
 
 class FortinetLoginApp(QWidget):
 
@@ -141,7 +142,6 @@ class FortinetLoginApp(QWidget):
         input_container.addWidget(password_label)
         input_container.addWidget(self.password_input)
 
-
         layout.addLayout(input_container)
 
         self.run_button = QPushButton("Start Service")
@@ -199,11 +199,9 @@ class FortinetLoginApp(QWidget):
         self.clear_log_button.setStyleSheet(clear_log_button_style)
 
         self.log_text = QTextEdit()
-        self.log_text.setFixedHeight(int(screen_height*0.1))
+        self.log_text.setFixedHeight(int(screen_height * 0.1))
         self.log_text.setReadOnly(True)
         self.log_text.setVisible(True)  # Initially hide the log section
-
-
 
         layout.addWidget(self.run_button)
         layout.addWidget(self.stop_button)
@@ -593,8 +591,13 @@ class ScriptThread(QThread):
         self.stopped = False
         if platform.system() == 'Windows':
             self.cmd = 'utils/authenticator.exe'
+        elif platform.system() == 'Linux':
+            self.cmd = 'utils/authenticator-linux'
+        elif platform.system() == 'Darwin':
+            self.cmd = 'utils/authenticator-darwin'
         else:
-            self.cmd = 'utils/authenticator'
+            self.cmd = 'python3 authenticator.py'
+
     def run(self):
         self.log_signal.emit(f'Logging with username {self.username}', True)
         try:
@@ -605,7 +608,8 @@ class ScriptThread(QThread):
                 self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                                 preexec_fn=os.setsid)
             else:
-                self.process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NO_WINDOW, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NO_WINDOW, stdout=subprocess.PIPE,
+                                                stderr=subprocess.PIPE)
 
             for line in iter(self.process.stdout.readline, b''):
                 log_message = line.decode("utf-8").strip()
