@@ -1,9 +1,18 @@
 import sqlite3
+import os
+import platform
 
+if platform.system() == 'Windows':
+    basedir = '.'
+
+if platform.system() == 'Linux':
+    basedir = os.path.expanduser('~/.iitkfauth')
+    os.makedirs(basedir, exist_ok=True)
+credential_dir = os.path.join(basedir, 'credentials.db')
 
 # Function to create or connect to the credentials database
 def initialize_database():
-    conn = sqlite3.connect("credentials.db")
+    conn = sqlite3.connect(credential_dir)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -20,7 +29,7 @@ def initialize_database():
 
 # Function to check if credentials exist in the database
 def check_credentials_exist():
-    conn = sqlite3.connect("credentials.db")
+    conn = sqlite3.connect(credential_dir)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM credentials")
     rows = cursor.fetchall()
@@ -30,7 +39,7 @@ def check_credentials_exist():
 
 # Function to retrieve saved credentials from the database
 def get_saved_credentials():
-    conn = sqlite3.connect("credentials.db")
+    conn = sqlite3.connect(credential_dir)
     cursor = conn.cursor()
     cursor.execute("SELECT username, password FROM credentials")
     row = cursor.fetchone()
@@ -40,7 +49,7 @@ def get_saved_credentials():
 
 # Function to save credentials to the database
 def save_credentials(username, password):
-    conn = sqlite3.connect("credentials.db")
+    conn = sqlite3.connect(credential_dir)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM credentials")
     cursor.execute("INSERT INTO credentials (username, password) VALUES (?, ?)", (username, password))

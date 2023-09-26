@@ -39,8 +39,10 @@ log_out_url = 'https://gateway.iitk.ac.in:1003/logout?a'
 
 app_name = "IITK Fortinet Login App"
 # Provide the path to the icon you want to use
+    
 icon_path = os.path.join(basedir, "img/icon.ico")  # Replace with your icon path
-
+if platform.system() == "Linux":
+    icon_path = os.path.join(basedir, "img/icon.png")  # Replace with your icon path
 
 class FortinetLoginApp(QWidget):
 
@@ -589,11 +591,14 @@ class ScriptThread(QThread):
         self.username = username
         self.password = password
         self.stopped = False
-
+        if platform.system() == 'Windows':
+            self.cmd = 'utils/authenticator.exe'
+        else:
+            self.cmd = 'utils/authenticator'
     def run(self):
         self.log_signal.emit(f'Logging with username {self.username}', True)
         try:
-            cmd = ["python", self.script_path, "-u", self.username, "-p", self.password]
+            cmd = [self.cmd, "-u", self.username, "-p", self.password]
 
             # Check if the OS is not Windows (assuming Unix-like OS supports os.setsid)
             if platform.system() != "Windows":

@@ -1,0 +1,1 @@
+-C package -s dir -t deb -n "IITKFAuth" -v 1.0.0 -p IITKFAuth.deb

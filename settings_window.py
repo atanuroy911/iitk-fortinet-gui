@@ -9,7 +9,12 @@ from PyQt5.QtCore import Qt
 
 if platform.system() == 'Windows':
     import winreg as reg
+    basedir = '.'
 
+if platform.system() == 'Linux' or 'Darwin':
+    basedir = os.path.expanduser('~/.iitkfauth')
+    os.makedirs(basedir, exist_ok=True)
+settings_dir = os.path.join(basedir, 'settings.db')
 
 class SettingsWindow(QDialog):
     def __init__(self, parent=None):
@@ -118,7 +123,7 @@ class SettingsWindow(QDialog):
     def load_settings(self):
         try:
             # Initialize the SQLite database connection
-            conn = sqlite3.connect("settings.db")
+            conn = sqlite3.connect(settings_dir)
             cursor = conn.cursor()
 
             # Create a settings table if it doesn't exist
@@ -147,7 +152,7 @@ class SettingsWindow(QDialog):
     def save_settings(self):
         try:
             # Initialize the SQLite database connection
-            conn = sqlite3.connect("settings.db")
+            conn = sqlite3.connect(settings_dir)
             cursor = conn.cursor()
 
             # Create a settings table if it doesn't exist
