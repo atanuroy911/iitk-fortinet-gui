@@ -9,8 +9,6 @@ from PyQt5.QtCore import Qt
 
 if platform.system() == 'Windows':
     import winreg as reg
-else:
-    print('Not Windows. Skipping...')
 
 
 class SettingsWindow(QDialog):
@@ -187,8 +185,6 @@ class SettingsWindow(QDialog):
                             reg.DeleteValue(registry_key, "YourAppName")
                     except FileNotFoundError:
                         pass
-            else:
-                print('Not Windows')
 
             QMessageBox.information(self, "Settings Saved", "Settings have been saved.", QMessageBox.Ok)
 
