@@ -16,9 +16,9 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QPushButton, QTextEdit, QLineEdit, QLabel, QMessageBox, QHBoxLayout,
     QSpacerItem, QSizePolicy, QSplashScreen, QSystemTrayIcon, QMenu, QDesktopWidget, QLayout
 )
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import Qt
 
-from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QThread, pyqtSignal
 from about_window import AboutWindow
 from db import initialize_database, get_saved_credentials, check_credentials_exist, \
     save_credentials
@@ -71,7 +71,7 @@ class FortinetLoginApp(QWidget):
         pixmap1 = QPixmap(os.path.join(basedir, "img/logo1.png"))  # Replace with the actual path to your first logo
 
         # Resize the first logo (e.g., to a width of 100 pixels)
-        pixmap1 = pixmap1.scaledToWidth(150, Qt.SmoothTransformation)
+        pixmap1 = pixmap1.scaledToWidth(int(screen_height * 0.12), Qt.SmoothTransformation)
 
         logo1.setPixmap(pixmap1)
         logo_layout.addWidget(logo1)
@@ -86,7 +86,7 @@ class FortinetLoginApp(QWidget):
             os.path.join(basedir, "img/Fortinet_logo.png"))  # Replace with the actual path to your second logo
 
         # Resize the second logo (e.g., to a width of 100 pixels)
-        pixmap2 = pixmap2.scaledToWidth(150, Qt.SmoothTransformation)
+        pixmap2 = pixmap2.scaledToWidth(int(screen_height * 0.12), Qt.SmoothTransformation)
 
         logo2.setPixmap(pixmap2)
         logo_layout.addWidget(logo2)
@@ -332,10 +332,17 @@ class FortinetLoginApp(QWidget):
 
         # Calculate the window size as a percentage of the screen size (e.g., 80% width and 60% height)
         window_width = int(screen_width * 0.2)
-        window_height = int(screen_height * 0.5)
+        window_height = int(screen_height * 0.55)
 
         # Set the window size
         self.setFixedSize(window_width, window_height)
+
+        # Define Auto Layout constraints for the central widget
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(10)
+
+        self.setMinimumSize(int(screen_width * 0.2), int(screen_height * 0.55))  # Set a minimum size
 
         # Calculate the window position to center it on the screen
         x_position = (screen_width - window_width) // 2
@@ -541,7 +548,7 @@ class ScriptThread(QThread):
 
             # Check if the OS is not Windows (assuming Unix-like OS supports os.setsid)
             if platform.system() != "Windows":
-                self.process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NO_WINDOW, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                                 preexec_fn=os.setsid)
             else:
                 self.process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NO_WINDOW, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
