@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('img', 'img/.'), ('utils', 'utils/.')],
+    datas=[('img', 'img/.'), ('utils/notification_manager.py', 'utils/.'), ('utils/authenticator.exe', 'utils/.')],
     hiddenimports=['plyer', 'pyobjus', 'plyer.platforms.win.notification', 'requests', 'sip', 'signal', 'getpass', 'argparse', 'logging'],
     hookspath=[],
     hooksconfig={},
