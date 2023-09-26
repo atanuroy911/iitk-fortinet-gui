@@ -330,9 +330,56 @@ class FortinetLoginApp(QWidget):
         # Show the system tray icon
         self.tray_icon.show()
 
-        # Calculate the window size as a percentage of the screen size (e.g., 80% width and 60% height)
-        window_width = int(screen_width * 0.2)
-        window_height = int(screen_height * 0.55)
+        if screen_width == 1920:
+            window_width = int(screen_width * 0.2)
+            window_height = int(screen_height * 0.5)
+        elif screen_width == 1680:
+            window_width = int(screen_width * 0.2)  # Different rule for 1366x768
+            window_height = int(screen_height * 0.5)  # Different rule for 1366x768
+        elif screen_width == 1600:
+            window_width = int(screen_width * 0.22)  # Different rule for 1366x768
+            window_height = int(screen_height * 0.55)  # Different rule for 1366x768
+        elif screen_width == 1440:
+            window_width = int(screen_width * 0.22)  # Different rule for 1366x768
+            window_height = int(screen_height * 0.55)  # Different rule for 1366x768
+        elif screen_width == 1400:
+            window_width = int(screen_width * 0.23)  # Different rule for 1366x768
+            window_height = int(screen_height * 0.50)  # Different rule for 1366x768
+        elif screen_width == 1366:
+            window_width = int(screen_width * 0.25)  # Different rule for 1366x768
+            window_height = int(screen_height * 0.62)  # Different rule for 1366x768
+        elif screen_width == 1360:
+            window_width = int(screen_width * 0.25)  # Different rule for 1366x768
+            window_height = int(screen_height * 0.62)  # Different rule for 1366x768
+        elif screen_width == 1280:
+            if screen_height == 768:
+                window_width = int(screen_width * 0.2)  # Different rule for 1280x720
+                window_height = int(screen_height * 0.6)
+            elif screen_height == 720:
+                window_width = int(screen_width * 0.2)
+                window_height = int(screen_height * 0.65)
+            elif screen_height == 960:
+                window_width = int(screen_width * 0.2)
+                window_height = int(screen_height * 0.52)
+            elif screen_height == 1024:
+                window_width = int(screen_width * 0.23)
+                window_height = int(screen_height * 0.53)
+            else:
+                window_width = int(screen_width * 0.2)  # Different rule for 1280x720
+                window_height = int(screen_height * 0.6)  # Different rule for 1280x720
+
+        elif screen_width == 1024:
+            window_width = int(screen_width * 0.23)  # Different rule for 1366x768
+            window_height = int(screen_height * 0.62)  # Different rule for 1366x768
+        elif screen_width == 800:
+            window_width = int(screen_width * 0.25)  # Different rule for 1366x768
+            window_height = int(screen_height * 0.75)  # Different rule for 1366x768
+
+
+        else:
+            # Default rules for other resolutions
+            window_width = int(screen_width * 0.2)
+            window_height = int(screen_height * 0.55)
 
         # Set the window size
         self.setFixedSize(window_width, window_height)
@@ -342,7 +389,7 @@ class FortinetLoginApp(QWidget):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(10)
 
-        self.setMinimumSize(int(screen_width * 0.2), int(screen_height * 0.55))  # Set a minimum size
+        self.setMinimumSize(int(screen_width * 0.2), int(screen_height * 0.5))  # Set a minimum size
 
         # Calculate the window position to center it on the screen
         x_position = (screen_width - window_width) // 2
