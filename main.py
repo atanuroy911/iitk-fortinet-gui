@@ -9,14 +9,19 @@ import subprocess
 import logging
 import signal
 import platform  # Import the platform module to check the OS
+import psutil
+
+# import fcntl
+
 
 import requests
+from PyQt5 import QtWidgets
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QPushButton, QTextEdit, QLineEdit, QLabel, QMessageBox, QHBoxLayout,
     QSpacerItem, QSizePolicy, QSplashScreen, QSystemTrayIcon, QMenu, QDesktopWidget, QLayout
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSystemSemaphore, QSharedMemory, QProcess
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from about_window import AboutWindow
@@ -28,8 +33,13 @@ from utils.notification_manager import NotificationManager
 if platform.system() == "Windows":
     import ctypes
 
+    # from win32 import win32gui
+
     myappid = u'iitk.fortinet.iotlab.atanuroy911'  # arbitrary string
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
+    # def windowEnumerationHandler(hwnd, top_windows):
+    #     top_windows.append((hwnd, win32gui.GetWindowText(hwnd)))
 
 main_window = None
 
@@ -44,7 +54,25 @@ icon_path = os.path.join(basedir, "img/icon.ico")  # Replace with your icon path
 if platform.system() == "Linux":
     icon_path = os.path.join(basedir, "img/icon.png")  # Replace with your icon path
 
+LOCK_FILE = os.path.join(os.path.expanduser("~/.iitkfauth"), ".fgauthlock")
 
+
+# def is_already_running():
+#     try:
+#         # Try to create a lock file with an exclusive lock (non-blocking)
+#         lock_fd = open(LOCK_FILE, "w")
+#         fcntl.lockf(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+#     except (OSError, IOError) as e:
+#         # If the file is locked by another instance, check if it's stale
+#         try:
+#             pid = int(open(LOCK_FILE).read())
+#             # Check if the process with the stored PID exists
+#             if os.path.exists(f"/proc/{pid}"):
+#                 return True  # Another instance is still running
+#         except ValueError:
+#             pass  # Invalid PID file, ignore and continue
+#
+#     return False
 class FortinetLoginApp(QWidget):
 
     def __init__(self, app, username, password):
@@ -400,16 +428,14 @@ class FortinetLoginApp(QWidget):
         # Set the window position
         self.move(x_position, y_position)
 
-        self.script_thread = ScriptThread(os.path.join(basedir, 'utils/authenticator.py'),
-                                          username=self.username_input.text(), password=self.password_input.text())
+        self.script_thread = ScriptThread(username=self.username_input.text(), password=self.password_input.text())
         self.script_thread.log_signal.connect(self.append_log)
 
         self.username_input.textChanged.connect(self.redeclare_script_thread)
         self.password_input.textChanged.connect(self.redeclare_script_thread)
 
     def redeclare_script_thread(self):
-        self.script_thread = ScriptThread(os.path.join(basedir, 'utils/authenticator.py'),
-                                          username=self.username_input.text(), password=self.password_input.text())
+        self.script_thread = ScriptThread(username=self.username_input.text(), password=self.password_input.text())
         self.script_thread.log_signal.connect(self.append_log)
 
     def show_application(self):
@@ -583,18 +609,17 @@ class ScriptThread(QThread):
     log_signal = pyqtSignal(str, bool)
     stop_signal = pyqtSignal()
 
-    def __init__(self, script_path, username, password):
+    def __init__(self, username, password):
         super().__init__()
-        self.script_path = script_path
         self.username = username
         self.password = password
         self.stopped = False
         if platform.system() == 'Windows':
-            self.cmd = os.path.join(basedir,'utils/authenticator.exe')
+            self.cmd = os.path.join(basedir, 'utils/authenticator.exe')
         elif platform.system() == 'Linux':
-            self.cmd = os.path.join(basedir,'utils/authenticator-linux')
+            self.cmd = os.path.join(basedir, 'utils/authenticator-linux')
         elif platform.system() == 'Darwin':
-            self.cmd = os.path.join(basedir,'utils/authenticator-darwin')
+            self.cmd = os.path.join(basedir, 'utils/authenticator-darwin')
         else:
             self.cmd = 'python3 authenticator.py'
 
@@ -608,7 +633,9 @@ class ScriptThread(QThread):
                 self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                                 preexec_fn=os.setsid)
             else:
-                self.process = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NO_WINDOW, stdout=subprocess.PIPE,
+                self.process = subprocess.Popen(cmd,
+                                                creationflags=subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP,
+                                                stdout=subprocess.PIPE,
                                                 stderr=subprocess.PIPE)
 
             for line in iter(self.process.stdout.readline, b''):
@@ -637,7 +664,10 @@ class ScriptThread(QThread):
                 os.killpg(os.getpgid(self.process.pid), signal.SIGINT)
             else:
                 # Send a Ctrl+C signal to the subprocess
-                self.process.terminate()
+                self.process.send_signal(signal.CTRL_BREAK_EVENT)
+                self.process.kill()
+                process_name_to_kill = "authenticator.exe"  # Replace with the name of the process you want to terminate
+                kill_processes_by_name(process_name_to_kill)
                 try:
                     response = requests.get(log_out_url, headers={'User-Agent': 'Mozilla/5.0'})
                 except:
@@ -650,6 +680,106 @@ class ScriptThread(QThread):
         except Exception as e:
             self.log_signal.emit(f"Error while Quitting: {str(e)}", False)
             error_notification(str(e))
+
+# QPROCESS IMPLEMENTATION
+
+# class ScriptThread(QThread):
+#     log_signal = pyqtSignal(str, bool)
+#     stop_signal = pyqtSignal()
+#
+#     def __init__(self, username, password):
+#         super().__init__()
+#         self.username = username
+#         self.password = password
+#         self.stopped = False
+#         if platform.system() == 'Windows':
+#             self.cmd = os.path.join(basedir, 'utils/authenticator.exe')
+#         elif platform.system() == 'Linux':
+#             self.cmd = os.path.join(basedir, 'utils/authenticator-linux')
+#         elif platform.system() == 'Darwin':
+#             self.cmd = os.path.join(basedir, 'utils/authenticator-darwin')
+#         else:
+#             self.cmd = 'python3 authenticator.py'
+#
+#     def run(self):
+#         self.log_signal.emit(f'Logging with username {self.username}', True)
+#         try:
+#             cmd = [self.cmd, "-u", self.username, "-p", self.password]
+#
+#             # Check if the OS is not Windows (assuming Unix-like OS supports os.setsid)
+#             if platform.system() != "Windows":
+#                 self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+#                                                 preexec_fn=os.setsid)
+#                 for line in iter(self.process.stdout.readline, b''):
+#                     log_message = line.decode("utf-8").strip()
+#                     # print(log_message)
+#                     self.log_signal.emit(log_message, True)
+#
+#                     if self.stopped:
+#                         break
+#
+#                 self.process.stdout.close()
+#                 self.process.wait()
+#             else:
+#                 self.process = QProcess()
+#                 self.process.start(self.cmd, ["-u", self.username, "-p", self.password])
+#                 self.process.setProcessGroup()
+#                 self.process.readyReadStandardOutput.connect(self.read_output)
+#                 self.process.finished.connect(self.process_finished)
+#                 self.process.waitForFinished()
+#
+#
+#         except Exception as e:
+#             print(e)
+#             self.log_signal.emit(f"Error: {str(e)}", False)
+#             error_notification(str(e))
+#
+#         finally:
+#             self.log_signal.emit("Script finished.", False)
+#
+#     def read_output(self):
+#         output = self.process.readAllStandardOutput()
+#         log_message = output.data().decode("utf-8").strip()
+#         self.log_signal.emit(log_message, True)
+#
+#     def process_finished(self):
+#         self.process.close()
+#         if self.stopped:
+#             self.log_signal.emit("Script stopped.", False)
+#         else:
+#             self.log_signal.emit("Script finished.", False)
+#
+#     def stop(self):
+#         self.stopped = True
+#
+#         # Check if the OS is not Windows (assuming Unix-like OS supports os.killpg)
+#         try:
+#             if platform.system() != "Windows":
+#                 os.killpg(os.getpgid(self.process.pid), signal.SIGINT)
+#             else:
+#                 self.process.kill()
+#                 self.process.terminate()
+#                 try:
+#                     response = requests.get(log_out_url, headers={'User-Agent': 'Mozilla/5.0'})
+#                 except:
+#                     self.log_signal.emit(f'Error in opening URL: {log_out_url}.', False)
+#
+#                 if response.status_code == 200:
+#                     self.log_signal.emit('Successfully logged out.', True)
+#
+#         except Exception as e:
+#             self.log_signal.emit(f"Error while Quitting: {str(e)}", False)
+#             error_notification(str(e))
+
+def kill_processes_by_name(process_name):
+    for process in psutil.process_iter(attrs=['pid', 'name']):
+        try:
+            process_info = process.name()
+            if process_info == process_name:
+                pid = process.pid
+                psutil.Process(pid).terminate()
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
 
 
 def error_notification(msg):
@@ -672,8 +802,50 @@ def error_notification(msg):
         )
 
 
+# top_windows = []
+# win32gui.EnumWindows(windowEnumerationHandler, top_windows)
+# for i in top_windows:
+#     if "Program" in i[1]:  # CHANGE PROGRAM TO THE NAME OF YOUR WINDOW
+#         win32gui.ShowWindow(i[0], 5)
+#         win32gui.SetForegroundWindow(i[0])
+#         sys.exit()
+
 def main():
+    # if is_already_running():
+    #     # If the application is already running or the lock file is stale, remove it and proceed
+    #     try:
+    #         os.remove(LOCK_FILE)
+    #     except Exception as e:
+    #         print(f"Failed to remove stale lock file: {e}")
+
     app = QApplication(sys.argv)
+
+    window_id = 'fgidapplication'
+    shared_mem_id = 'fgidsharedmem'
+    semaphore = QSystemSemaphore(window_id, 1)
+    semaphore.acquire()  # Raise the semaphore, barring other instances to work with shared memory
+
+    if sys.platform != 'win32':
+        # in linux / unix shared memory is not freed when the application terminates abnormally,
+        # so you need to get rid of the garbage
+        nix_fix_shared_mem = QSharedMemory(shared_mem_id)
+        if nix_fix_shared_mem.attach():
+            nix_fix_shared_mem.detach()
+
+    shared_memory = QSharedMemory(shared_mem_id)
+
+    if shared_memory.attach():  # attach a copy of the shared memory, if successful, the application is already running
+        is_running = True
+    else:
+        shared_memory.create(1)  # allocate a shared memory block of 1 byte
+        is_running = False
+
+    semaphore.release()
+
+    if is_running:  # if the application is already running, show the warning message
+        QtWidgets.QMessageBox.warning(None, 'Application already running',
+                                      'One instance of the application is already running.')
+        return
 
     app_icon = QIcon(os.path.join(basedir, "img/icon.ico"))  # Replace with the path to your application icon
     app.setWindowIcon(app_icon)

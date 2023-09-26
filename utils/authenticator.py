@@ -41,7 +41,7 @@ def interrupt_handler(sig, frame):
     else:
         logging.info('Exiting.')
 
-    exit()
+    sys.exit()
 
 
 def get_credentials(pass_only: bool) -> Tuple[Union[str, None], str]:

@@ -3,3 +3,5 @@ plyer
 Requests
 pyqt5
 pyobjus
+
+psutil
