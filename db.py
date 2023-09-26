@@ -2,6 +2,8 @@ import sqlite3
 import os
 import platform
 
+basedir = os.path.expanduser('~/.iitkfauth')
+
 if platform.system() == 'Windows':
     basedir = '.'
 
