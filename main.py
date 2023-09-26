@@ -61,6 +61,8 @@ class FortinetLoginApp(QWidget):
         # Determine the screen size
         screen = QDesktopWidget().screenGeometry()
         screen_width, screen_height = screen.width(), screen.height()
+        print(screen_height)
+        print(screen_width)
         # Create a QHBoxLayout for the logos
         logo_layout = QHBoxLayout()
         # Add an empty spacer to push the first logo to the right
