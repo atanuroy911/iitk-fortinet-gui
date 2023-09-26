@@ -1,4 +1,4 @@
-.db
+*.db
 test.py
 build
 dist
@@ -7,5 +7,5 @@ venv
 Output
 .idea
 package
-.deb
-.exe
+*.deb
+*.exe
