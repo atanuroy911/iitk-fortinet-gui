@@ -6,7 +6,7 @@ class NotificationManager:
 
     def show_notification(self, message, icon_path=None):
         if icon_path is None:
-            icon_path = os.path.join(os.path.dirname(__file__), "img/icon.ico")  # Replace with your default icon path
+            icon_path = os.path.join(os.path.dirname(__file__), "img/icon.icns")  # Replace with your default icon path
 
         if os.name == 'posix' and os.uname().sysname == 'Darwin':  # Check if the OS is macOS
             try:
