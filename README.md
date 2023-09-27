@@ -25,11 +25,12 @@ The **IITK Fortinet Authenticator** is a simple yet effective tool designed to s
 ### Installation
 
 1. Go to the **[Releases Page](https://github.com/atanuroy911/iitk-fortinet-gui/releases)**
+
    ```bash
    https://github.com/atanuroy911/iitk-fortinet-gui/releases
    ```
-2. Download the **appropriate installer** for your System
-3. **Install** the software
+3. Download the **appropriate installer** for your System
+4. **Install** the software
 
 ### Usage
 
