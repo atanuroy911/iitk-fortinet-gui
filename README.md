@@ -24,20 +24,65 @@ The **IITK Fortinet Authenticator** is a simple yet effective tool designed to s
 
 ### Installation
 
-1. Go to the Releases Page
+1. Go to the **Releases Page**
    ```bash
    https://github.com/atanuroy911/iitk-fortinet-gui/releases
    ```
-2. Download the appropriate installer for your System
-3. Install the software
+2. Download the **appropriate installer** for your System
+3. **Install** the software
 
 ### Usage
 
 1. Open the App from your Applications menu
 2. Enter Your Username Password
-3. Click Save Info
-4. Click on Start Service
+3. Click **Save Info**
+4. Click on **Start Service**
 5. Close or Minimize the Window
+
+### State of Work
+1. Start at startup only works on Windows (via Regedit)
+2. Minimize to Taskbar do not work on Raspbian (Raspberry Pi) - Workaround Below
+3. Update Section - work in progress
+4. Rarely, It may give a variable error. Just Stop and Restart the script option
+
+### BUGS & Fixes
+#### 1. Auto Startup Option
+Implementing this option on windows was fairly easy. For Mac and Linux, we have to work with Launch Agents and Service Daemons respectively. Making this work requires SUDO permission. Working to make this user friendly.
+
+#### 2. Minimize to taskbar on Rasbperry Pi
+The minimize to taskbar function is followed by Notification or Toast message i.e. the App has now gone to background. Furthermore there are several other notifications. Unfortunately the Raspbian OS does not give an interactive notification daemon or application. The library used in this project for notification is called plyer. This library calls the FreeDesktop Notification Handler that comes by default in every major Linux distributions whether it's running GTK Based desktop environment or not. The raspberry pi being lightweight, don't have this. Hence, we have to use a different notification daemon that can be spoofed as the FreeeDesktop Daemon which Plyer library uses. 
+**Follow these steps:**
+1. Run:
+'''shell
+sudo apt install -y notification-daemon
+'''
+2. Then, create a new file and paste the following script to it:
+'''shell
+nano
+'''
+'''shell
+#!/usr/bin/env bash
+
+clear
+
+if [ "${EUID}" -ne '0' ]; then
+    printf "%s\n\n" 'You must run this script WITH root/sudo.'
+fi
+
+file=/usr/share/dbus-1/services/org.freedesktop.Notifications.service
+
+cat > "${file}" <<'EOF'
+[D-BUS Service]
+Name=org.freedesktop.Notifications
+Exec=/usr/lib/notification-daemon/notification-daemon
+EOF
+'''
+3. Press CTRL+O to save and CTRL+X to quit nano
+4. Reboot the system
+
+#### 3. Automatic Update Feature Pending
+#### 4. Variable Error
+This error is a peculiar one. It happens very rarely. I have seen it 1 time only. I am looking out for it. Need to replicate the error before solving it.
 
 ## Contribution
 
