@@ -10,8 +10,6 @@ The **IITK Fortinet Authenticator** is a simple yet effective tool designed to s
   <img src="https://i.ibb.co/XtdH150/image.png">
 </p>
 
-**Note: This software is targetted for IITK WiFi (NOT IITK-Sec or IITK-Sec-5GHz) and LAN. Using on other networks will simply show that you are connected to internet. You can keep it running forever. Whenever it detects a network with no internet access it will attempt to connect to the Fortiguard Captive Portal and login**
-
 ## Features
 
 - **Automated Login:** Forget the hassle of manually entering your credentials each time you connect to the IITK network. The IITK Fortinet Authenticator will handle it for you.
@@ -96,6 +94,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Disclaimer
 
 This software is provided as-is, without any warranties or guarantees. Use it responsibly and at your own risk.
+This software is targetted for IITK WiFi (NOT IITK-Sec or IITK-Sec-5GHz) and LAN. Using on other networks will simply show that you are connected to internet. You can keep it running forever. Whenever it detects a network with no internet access it will attempt to connect to the Fortiguard Captive Portal and login
 
 ---
 
