@@ -10,7 +10,7 @@ The **IITK Fortinet Authenticator** is a simple yet effective tool designed to s
   <img src="https://i.ibb.co/XtdH150/image.png">
 </p>
 
-**Disclaimer: This Software is targetted for IITK WiFi (NOT IITK-Sec or IITK-Sec-5GHz) and LAN. Using on other networks will simply show that you are connected to internet**
+**Disclaimer: This software is targetted for IITK WiFi (NOT IITK-Sec or IITK-Sec-5GHz) and LAN. Using on other networks will simply show that you are connected to internet**
 
 ## Features
 
