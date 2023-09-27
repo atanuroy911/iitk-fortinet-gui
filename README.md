@@ -8,7 +8,7 @@ The **IITK Fortinet Authenticator** is a simple yet effective tool designed to s
 
 
 <p align="center">
-  <img width="460" height="300" src="https://i.ibb.co/XtdH150/image.png">
+  <img src="https://i.ibb.co/XtdH150/image.png">
 </p>
 
 
