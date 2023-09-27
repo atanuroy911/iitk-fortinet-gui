@@ -1,4 +1,4 @@
-# IITK Fortinet Authenticator
+# IITK Fortinet Authenticator (WiFi & LAN)
 
 ![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)
 
