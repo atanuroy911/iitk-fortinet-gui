@@ -16,7 +16,7 @@ The **IITK Fortinet Authenticator** is a simple yet effective tool designed to s
 
 - **Automated Login:** Forget the hassle of manually entering your credentials each time you connect to the IITK network. The IITK Fortinet Authenticator will handle it for you.
 
-- **Password Encryption:** Your login credentials are securely stored and encrypted to protect your privacy.
+- **Password Encryption:** Your login credentials are securely stored in your local computer inside a local DB which uses SQLite.
 
 - **Session Keep Alive:** The tool will periodically ping the captive portal to ensure your internet session remains active.
 
