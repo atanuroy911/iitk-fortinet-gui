@@ -53,14 +53,14 @@ Implementing this option on windows was fairly easy. For Mac and Linux, we have 
 The minimize to taskbar function is followed by Notification or Toast message i.e. the App has now gone to background. Furthermore there are several other notifications. Unfortunately the Raspbian OS does not give an interactive notification daemon or application. The library used in this project for notification is called plyer. This library calls the FreeDesktop Notification Handler that comes by default in every major Linux distributions whether it's running GTK Based desktop environment or not. The raspberry pi being lightweight, don't have this. Hence, we have to use a different notification daemon that can be spoofed as the FreeeDesktop Daemon which Plyer library uses. 
 **Follow these steps:**
 1. Run:
-'''shell
+```shell
 sudo apt install -y notification-daemon
-'''
+```
 2. Then, create a new file and paste the following script to it:
-'''shell
+```shell
 nano
-'''
-'''shell
+```
+```shell
 #!/usr/bin/env bash
 
 clear
@@ -76,7 +76,7 @@ cat > "${file}" <<'EOF'
 Name=org.freedesktop.Notifications
 Exec=/usr/lib/notification-daemon/notification-daemon
 EOF
-'''
+```
 3. Press CTRL+O to save and CTRL+X to quit nano
 4. Reboot the system
 
