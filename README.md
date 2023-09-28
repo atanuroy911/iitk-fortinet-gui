@@ -100,4 +100,4 @@ This software is targetted for IITK WiFi (NOT IITK-Sec or IITK-Sec-5GHz) and LAN
 
 Feel free to reach out if you have any questions or encounter any issues. Happy browsing at IITK! 🚀
 
-Author: Atanu Shuvam Roy
+**Author: Atanu Shuvam Roy**
