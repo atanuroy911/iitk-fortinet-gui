@@ -7,7 +7,7 @@
 The **IITK Fortinet Authenticator** is a simple yet effective tool designed to streamline the process of logging in to the captive portal of the Indian Institute of Technology Kanpur (IITK). It provides a convenient way to remember your username and password and automatically log in to the Fortinet captive portal, ensuring uninterrupted internet access during your stay at IITK. The software is meant to be a GUI Interface over an existing Authenticator Script (which is used in the server at IITK) 
 
 <p align="center">
-  <img src="img/icon.png">
+  <img src="site/images/desktop.png">
 </p>
 
 ## Features
