@@ -10,3 +10,4 @@ package
 *.deb
 *.exe
 dist
+node_modules

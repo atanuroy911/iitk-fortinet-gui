@@ -1,0 +1,73 @@
+{
+  "main": {
+    "name":"IITK Fortinet Authenticator",
+    "authorname": "Atanu Shuvam Roy",
+    "description":"The IITKFAuth is a simple yet effective tool designed to streamline the process of logging in to the captive portal of the Indian Institute of Technology Kanpur (IITK)",
+    "image":"profilepic.jpg",
+    "bio":"International MTech student (Dept. of CSE) at IIT Kanpur from Bangladesh, web and native application developer, enthusiastic about new technology",
+    "contactmessage":"Ping me if you want to collaborate",
+    "email": "atanuroy911@gmail.com",
+    "phone": "9026935417",
+    "github":"https://github.com/atanuroy911/iitk-fortinet-gui",
+    "project":"https://github.com/atanuroy911/iitk-fortinet-gui",
+    "address":{
+      "street":"IIT Kanpur",
+      "city":"Kanpur",
+      "state":"Uttar Pradesh",
+      "zip": "208016"
+    },
+    "demoimg" : "images/desktop.png",
+    "downloadlinks": [
+      {
+        "name":"Windows",
+        "link":"https://github.com/atanuroy911/iitk-fortinet-gui/releases/download/1.0.0/IITKAuthSetup.exe",
+        "className":"fa fa-windows"
+      },
+      {
+        "name":"MacOS",
+        "link":"https://github.com/atanuroy911/iitk-fortinet-gui/releases/download/1.0.0/IITKFAuth.dmg",
+        "className":"fa fa-apple"
+      },
+      {
+        "name":"Linux",
+        "link":"https://github.com/atanuroy911/iitk-fortinet-gui/releases/download/1.0.0/IITKFAuth.deb",
+        "className":"fa fa-linux"
+      },
+      {
+        "name":"Raspberry Pi",
+        "link":"https://github.com/atanuroy911/iitk-fortinet-gui/releases/download/1.0.0/IITKFAuth-rpi3b.deb",
+        "className":"fa-brands fa-raspberry-pi"
+      }
+
+    ],
+    "website": "http://atanuroy911.netlify.app",
+    "resumedownload":"./Atanu Shuvam Roy Resume.pdf",
+    "social":[
+      {
+        "name":"facebook",
+        "url":"https://www.facebook.com/atanu.roy.911",
+        "className":"fa fa-facebook"
+      },
+      {
+        "name":"twitter",
+        "url":"https://twitter.com/atanuroy911",
+        "className":"fa fa-twitter"
+      },
+      {
+        "name":"linkedin",
+        "url":"https://www.linkedin.com/in/atanuroy911",
+        "className":"fa fa-linkedin"
+      },
+      {
+        "name":"instagram",
+        "url":"https://www.instagram.com/atanuroy911/?hl=en",
+        "className":"fa fa-instagram"
+      },
+      {
+        "name":"github",
+        "url":"https://github.com/atanuroy911",
+        "className":"fa fa-github"
+      }
+    ]
+  }
+}
